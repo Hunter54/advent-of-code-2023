@@ -1,3 +1,8 @@
+package Day01
+
+import println
+import readInput
+
 enum class Numbers(val int: Int) {
     one(1),
     two(2),
@@ -91,10 +96,10 @@ fun main() {
     }
 
     // test if implementation meets criteria from the description, like:
-    val testInput = readInput("Day01_test")
+    val testInput = readInput("Day01/Day01_test")
     check(part2(testInput) == 281)
 
-    val input = readInput("Day01")
+    val input = readInput("Day01/Day01")
     part1(input).println()
     part2(input).println()
 }
