@@ -30,28 +30,26 @@ fun main() {
         return finalValue
     }
 
-    fun returnDigitFromMatch(match: MatchResult): Int {
-        return if (match.range.count() > 1) {
-            val digit = match.value
-            Numbers.entries.first { it.name == digit }.int
+    fun returnDigitFromMatch(match: String): Int {
+        return if (match.length > 1) {
+            Numbers.entries.first { it.name == match }.int
         } else {
-            match.value.toInt()
+            match.toInt()
         }
     }
 
     fun withRegex(input: List<String>): Int {
-        val regex = Numbers.entries.fold("\\d|") { sum, number ->
-            val valueToAdd = if (number.ordinal == Numbers.entries.lastIndex) number else ("$number|")
-            sum + valueToAdd
-        }.let {
-            println(it)
-            it.toRegex()
-        }
+        val regex = Regex("""(?=(one|two|three|four|five|six|seven|eight|nine|\d))""")
         val finalValue = input.fold(0) { sum, line ->
             val matches = regex.findAll(line)
-            val firstValue = returnDigitFromMatch(matches.first())
-            val lastValue = returnDigitFromMatch(matches.last())
-
+            val firstValueString = matches.first().groupValues[1].takeIf { it.isNotEmpty() } ?: run{
+                matches.first().groupValues[2]
+            }
+            val firstValue = returnDigitFromMatch(firstValueString)
+            val lastValueString = matches.last().groupValues[1].takeIf { it.isNotEmpty() } ?: run{
+            matches.last().groupValues[2]
+        }
+            val lastValue = returnDigitFromMatch(lastValueString)
             sum + (firstValue * 10 + lastValue)
         }
         return finalValue
@@ -92,7 +90,7 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        return withoutRegex(input)
+        return withRegex(input)
     }
 
     // test if implementation meets criteria from the description, like:
