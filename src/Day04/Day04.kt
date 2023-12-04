@@ -11,6 +11,7 @@ data class Card(
 
 fun main() {
 
+
     fun parseInputData(input: List<String>): List<Card> {
 
         val cardsList = input.map { line ->
@@ -26,28 +27,48 @@ fun main() {
         return cardsList
     }
 
-    fun findNumberOfPointsPerCard(card: Card): Int{
+    fun findMatchingNumbers(card: Card): Int {
 
         val matchingNumbers = card.winningNumbers.count {
             it in card.numbers
         }
-        return 2.0.pow(matchingNumbers - 1).toInt()
+        return matchingNumbers
     }
 
     fun part1(input: List<String>): Int {
         val parsedData = parseInputData(input)
         val numberOfPoints = parsedData.sumOf { card ->
-            findNumberOfPointsPerCard(card)
+            2.0.pow(findMatchingNumbers(card) - 1).toInt()
         }
         return numberOfPoints
     }
 
+    fun findNumberOfCards(cards: List<Card>): Int {
+        val numberOfEachCards = cards.associate { it.id to 1 }.toMutableMap()
+
+        cards.forEach { card ->
+            val matchingNumbers = findMatchingNumbers(card)
+            (1..matchingNumbers).forEach {
+                val numberOfCardsAtId = numberOfEachCards[card.id] ?: error("Invalid ID")
+
+                numberOfEachCards[card.id + it] =
+                    numberOfEachCards[card.id + it]?.plus(numberOfCardsAtId) ?: error("Invalid ID")
+            }
+        }
+
+        return numberOfEachCards.values.sumOf {
+            it
+        }
+    }
+
     fun part2(input: List<String>): Int {
-        return 0
+
+        val cards = parseInputData(input)
+        return findNumberOfCards(cards)
     }
 
     val testInput = readInput("Day04/Day04_test")
-    check(part1(testInput) == 13)
+    check(part2(testInput) == 30)
 
     val input = readInput("Day04/Day04")
     println(part1(input))
