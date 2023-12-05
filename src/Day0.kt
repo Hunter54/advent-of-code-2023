@@ -41,7 +41,7 @@ fun main() {
     check(testOutput2 == 0)
     println("✅ part two with $testOutput2 ✅ in $testOutput2Millis ms")
 
-    println("*****************")
+    println("******************")
 
     val input = readInput("Day04/Day04")
     var output1: Int
@@ -49,9 +49,9 @@ fun main() {
     val output1Millis = measureTimeMillis {
         output1 = part1(input)
     }
+    println("💡 part one with $output1 💡in $output1Millis ms")
     val output2Millis = measureTimeMillis {
         output2 = part2(input)
     }
-    println("💡 part one with $output1 💡in $output1Millis ms")
     println("💡 part two with $output2 💡in $output2Millis ms")
 }

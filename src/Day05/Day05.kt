@@ -1,5 +1,6 @@
 package Day05
 
+import kotlinx.coroutines.*
 import readInput
 import kotlin.system.measureTimeMillis
 
@@ -7,18 +8,14 @@ const val dayNumber = "05"
 
 class Day05 {
 
-    fun getSeedsPart2(seedsString: String): Sequence<Long> {
+    fun getSeedsPart2(seedsString: String): List<LongRange> {
         return seedsString.substringAfter(" ")
             .split(" ")
             .filterNot { it.isBlank() }
-            .map { it.toLong() }
             .chunked(2)
-            .map { it[0] to it[1] }
-            .asSequence()
-            .flatMap { (start, length) ->
-                generateSequence(start) {
-                    if (it < start + length -1) it + 1 else null
-                }
+            .map { it[0].toLong() to it[1].toLong() }
+            .map { (start, length) ->
+                start..<start + length
             }
     }
 
@@ -46,42 +43,45 @@ class Day05 {
         return mappings
     }
 
-    fun getLocation(input: List<String>, seeds: Sequence<Long>): Int {
+    suspend fun getLocation(input: List<String>, seeds: List<LongRange>): Int = withContext(Dispatchers.Default) {
         val listOfMappings = getMaps(input)
-        return seeds.minOf { seed ->
-            listOfMappings.fold(seed) { value, map ->
-                val destination = map.entries.firstOrNull {
-                    value in it.key
-                }?.let { (source, destination) ->
-                    val offsetFromStart = value - source.first
-                    destination.first + offsetFromStart
-                } ?: value
-                destination
+        return@withContext seeds.map { seedsRange ->
+            async {
+                seedsRange.minOf { seed ->
+                    listOfMappings.fold(seed) { value, map ->
+                        val destination = map.entries.firstOrNull {
+                            value in it.key
+                        }?.let { (source, destination) ->
+                            val offsetFromStart = value - source.first
+                            destination.first + offsetFromStart
+                        } ?: value
+                        destination
+                    }
+                }
             }
-        }.toInt()
+        }.awaitAll().min().toInt()
     }
 
-    fun part1(input: List<String>): Int {
-        val seeds = getSeedsPart1(input.first()).asSequence()
+    suspend fun part1(input: List<String>): Int {
+        val seeds = getSeedsPart1(input.first()).map { it.rangeTo(it) }
         return getLocation(input, seeds)
     }
 
-    fun part2(input: List<String>): Int {
+    suspend fun part2(input: List<String>): Int {
         val seeds = getSeedsPart2(input.first())
-        println("part2 seeds $seeds")
         return getLocation(input, seeds)
     }
 }
 
-fun main() {
+fun main() = runBlocking {
 
     val day = Day05()
 
-    fun part1(input: List<String>): Int {
+    suspend fun part1(input: List<String>): Int {
         return day.part1(input)
     }
 
-    fun part2(input: List<String>): Int {
+    suspend fun part2(input: List<String>): Int {
         return day.part2(input)
     }
 
@@ -103,7 +103,7 @@ fun main() {
     check(testOutput2 == 46)
     println("✅ part two with $testOutput2 ✅ in $testOutput2Millis ms")
 
-    println("*****************")
+    println("******************")
 
     val input = readInput("Day$dayNumber/Day${dayNumber}")
     var output1: Int
@@ -111,9 +111,9 @@ fun main() {
     val output1Millis = measureTimeMillis {
         output1 = part1(input)
     }
+    println("💡 part one with $output1 💡in $output1Millis ms")
     val output2Millis = measureTimeMillis {
         output2 = part2(input)
     }
-    println("💡 part one with $output1 💡in $output1Millis ms")
     println("💡 part two with $output2 💡in $output2Millis ms")
 }
