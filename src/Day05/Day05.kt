@@ -73,7 +73,7 @@ class Day05 {
     }
 }
 
-fun main() = runBlocking {
+fun main() = runBlocking(Dispatchers.Default) {
 
     val day = Day05()
 

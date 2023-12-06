@@ -43,7 +43,7 @@ fun main() {
 
     println("******************")
 
-    val input = readInput("Day04/Day04")
+    val input = readInput("Day${dayNumber}/Day${dayNumber}")
     var output1: Int
     var output2: Int
     val output1Millis = measureTimeMillis {
